@@ -8,7 +8,7 @@
 
 ## 🌍 Live Demo
 
-👉 **[Live Demo](YOUR_LIVE_DEMO_URL)**
+👉 **[Live Demo (Full-Stack on Render)](https://block-explore.onrender.com)** | **[GitHub Pages Frontend](https://waithira-felix-coder.github.io/block_explore/)**
 
 ---
 

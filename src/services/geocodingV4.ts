@@ -17,7 +17,12 @@ export const GEOCODING_V4_BASE_URL = 'https://geocode.googleapis.com/v4/geocode/
 
 let cachedRuntimeMapsKey = '';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')
+    ? 'https://block-explore.onrender.com'
+    : '')
+).replace(/\/+$/, '');
 
 export async function resolveRuntimeMapsApiKey(providedKey?: string): Promise<string> {
   const trimmedProvided = (providedKey || '').trim();

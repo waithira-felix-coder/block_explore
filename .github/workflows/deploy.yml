@@ -33,7 +33,7 @@ jobs:
         env:
           GITHUB_PAGES: 'true'
           VITE_GOOGLE_MAPS_PLATFORM_KEY: ${{ secrets.GOOGLE_MAPS_PLATFORM_KEY }}
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || 'https://block-explore.onrender.com' }}
         run: npm run build
 
       - name: Upload artifact
