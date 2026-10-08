@@ -36,18 +36,16 @@ Geospatial APIs provide canonical, structured ground truth—exact latitude/long
 
 ## 📸 Screenshots
 
-> _Place your 3 application screenshots at the paths below (or update the filenames to match your repo assets)._
-
 ### 1. Explore — Split-Screen Geocoded Dossier & Interactive Map
-![Explore Destination — Split-Screen Geocoded Dossier and Interactive Map](docs/screenshots/01-explore-destination.png)
+![Explore Destination — Split-Screen Geocoded Dossier and Interactive Map](docs/screenshots/01-explore-destination.svg)
 *Full split-screen view showing the Geocoded Block Dossier (coordinates, Place ID, Plus Code, viewport bounds, and address hierarchy) on the left and the interactive Google Map with custom coordinate pin and surface controls on the right.*
 
 ### 2. Understand — AI-Generated Local Insights & Category Selection
-![Understand Local Character — Gemini Local Insights Banner](docs/screenshots/02-understand-local-insights.png)
+![Understand Local Character — Gemini Local Insights Banner](docs/screenshots/02-understand-local-insights.svg)
 *The Local Insights banner displaying 3 Gemini-generated tour guide facts for the active destination alongside the "Test their local knowledge" category selector (`Local cuisine`, `Art and culture`, `Local history`).*
 
 ### 3. Test — Hyperlocal Mode Quiz & Google Maps Grounding Sources
-![Test Your Knowledge — Hyperlocal Mode Quiz with Grounded Sources](docs/screenshots/03-test-hyperlocal-quiz.png)
+![Test Your Knowledge — Hyperlocal Mode Quiz with Grounded Sources](docs/screenshots/03-test-hyperlocal-quiz.svg)
 *The 3-question Local Knowledge Quiz with Hyperlocal mode enabled, featuring the difficulty explainer, clickable Google Maps Grounding Sources attribution links, and graded multiple-choice answers with local explanations.*
 
 ---

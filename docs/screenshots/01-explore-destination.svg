@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960">
+      <rect width="1600" height="960" fill="#FBF9F5"/>
+      <!-- Left 1/3 Control Panel -->
+      <rect x="0" y="0" width="533" height="960" fill="#FBF9F5" stroke="#D6D3D1" stroke-width="2"/>
+      <text x="36" y="48" font-family="sans-serif" font-size="11" fill="#78716C" letter-spacing="2">GEOSPATIAL GAZETTEER · ZOOM LEVEL: 13.5</text>
+      <text x="36" y="96" font-family="Georgia, serif" font-size="44" fill="#1C1917">Block Explorer</text>
+      <text x="36" y="128" font-family="sans-serif" font-size="13" fill="#57534E">Survey urban morphology, neighborhood coordinates, and local tour</text>
+      <text x="36" y="148" font-family="sans-serif" font-size="13" fill="#57534E">guide insights across the globe via Google Geocoding V4 and Gemini.</text>
+      <line x1="36" y1="172" x2="497" y2="172" stroke="#D6D3D1"/>
+
+      <!-- 01 Search -->
+      <text x="36" y="204" font-family="sans-serif" font-size="11" font-weight="bold" fill="#57534E" letter-spacing="1.5">01. SEARCH LOCATION OR NEIGHBORHOOD</text>
+      <text x="380" y="204" font-family="monospace" font-size="11" fill="#78716C">/v4/geocode/address/</text>
+      <rect x="36" y="218" width="365" height="40" fill="#FFFFFF" stroke="#D6D3D1"/>
+      <text x="52" y="243" font-family="sans-serif" font-size="13" fill="#1C1917">Shibuya, Tokyo</text>
+      <rect x="401" y="218" width="96" height="40" fill="#1C1917"/>
+      <text x="424" y="243" font-family="sans-serif" font-size="12" font-weight="bold" fill="#FBF9F5" letter-spacing="1">EXPLORE</text>
+
+      <!-- 02 Curated Presets -->
+      <text x="36" y="294" font-family="sans-serif" font-size="11" font-weight="bold" fill="#57534E" letter-spacing="1.5">02. CURATED URBAN PRESETS</text>
+      <text x="405" y="294" font-family="sans-serif" font-size="11" fill="#78716C">5 Global Districts</text>
+      <rect x="36" y="310" width="146" height="36" fill="#F7F4EE" stroke="#D6D3D1"/>
+      <text x="50" y="333" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1C1917">Buenos Aires</text>
+      <rect x="192" y="310" width="146" height="36" fill="#1C1917" stroke="#1C1917"/>
+      <text x="206" y="333" font-family="sans-serif" font-size="12" font-weight="bold" fill="#FBF9F5">Shibuya</text>
+      <rect x="348" y="310" width="149" height="36" fill="#F7F4EE" stroke="#D6D3D1"/>
+      <text x="362" y="333" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1C1917">Copacabana</text>
+      <rect x="36" y="354" width="146" height="36" fill="#F7F4EE" stroke="#D6D3D1"/>
+      <text x="50" y="377" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1C1917">Cologne</text>
+      <rect x="192" y="354" width="146" height="36" fill="#F7F4EE" stroke="#D6D3D1"/>
+      <text x="206" y="377" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1C1917">Lima</text>
+
+      <!-- 03 Geocoded Block Dossier -->
+      <line x1="36" y1="416" x2="497" y2="416" stroke="#D6D3D1"/>
+      <text x="36" y="444" font-family="sans-serif" font-size="11" font-weight="bold" fill="#57534E" letter-spacing="1.5">03. GEOCODED BLOCK DOSSIER</text>
+      <text x="395" y="444" font-family="monospace" font-size="11" fill="#78716C">142 ms · 10:15:04</text>
+      <text x="36" y="476" font-family="sans-serif" font-size="12" font-weight="bold" fill="#9A3412">Shibuya, Tokyo · locality · political</text>
+      <text x="36" y="508" font-family="Georgia, serif" font-size="26" fill="#1C1917">Shibuya, Tokyo, Japan</text>
+      <rect x="405" y="472" width="92" height="32" fill="#F7F4EE" stroke="#D6D3D1"/>
+      <text x="422" y="492" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1C1917">Bookmark</text>
+
+      <line x1="36" y1="534" x2="497" y2="534" stroke="#D6D3D1"/>
+      <text x="36" y="560" font-family="sans-serif" font-size="12" fill="#78716C">Identified Locality</text>
+      <text x="375" y="560" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1C1917">Shibuya, Tokyo</text>
+      <line x1="36" y1="576" x2="497" y2="576" stroke="#E7E5E4"/>
+      <text x="36" y="602" font-family="sans-serif" font-size="12" fill="#78716C">Coordinates (Lat, Lng)</text>
+      <text x="345" y="602" font-family="monospace" font-size="12" font-weight="bold" fill="#1C1917">35.6580, 139.7016</text>
+      <line x1="36" y1="618" x2="497" y2="618" stroke="#E7E5E4"/>
+      <text x="36" y="644" font-family="sans-serif" font-size="12" fill="#78716C">Location Granularity</text>
+      <text x="400" y="644" font-family="monospace" font-size="12" fill="#1C1917">APPROXIMATE</text>
+      <line x1="36" y1="660" x2="497" y2="660" stroke="#E7E5E4"/>
+      <text x="36" y="686" font-family="sans-serif" font-size="12" fill="#78716C">Place Identifier</text>
+      <text x="295" y="686" font-family="monospace" font-size="12" fill="#57534E">ChIJ51cu8IcbXWARiRtXIothAS4</text>
+      <line x1="36" y1="702" x2="497" y2="702" stroke="#E7E5E4"/>
+      <text x="36" y="728" font-family="sans-serif" font-size="12" fill="#78716C">Viewport Bounding Box</text>
+      <text x="36" y="752" font-family="monospace" font-size="11" fill="#57534E">SW: 35.6415, 139.6698 · NE: 35.6841, 139.7239</text>
+
+      <!-- Right 2/3 Interactive Map Canvas -->
+      <rect x="534" y="0" width="1066" height="960" fill="#E6E1D6"/>
+      <!-- Stylistic Urban Map Grid & Roads -->
+      <g stroke="#D5CFC2" stroke-width="2">
+        <line x1="534" y1="140" x2="1600" y2="280"/>
+        <line x1="534" y1="360" x2="1600" y2="310"/>
+        <line x1="534" y1="540" x2="1600" y2="490"/>
+        <line x1="534" y1="720" x2="1600" y2="680"/>
+        <line x1="720" y1="0" x2="660" y2="960"/>
+        <line x1="940" y1="0" x2="990" y2="960"/>
+        <line x1="1180" y1="0" x2="1120" y2="960"/>
+        <line x1="1410" y1="0" x2="1460" y2="960"/>
+      </g>
+      <g stroke="#F5EFE6" stroke-width="6">
+        <line x1="534" y1="430" x2="1600" y2="395"/>
+        <line x1="1065" y1="0" x2="1045" y2="960"/>
+        <line x1="760" y1="0" x2="1360" y2="960"/>
+      </g>
+
+      <!-- Top-Left Map Layer & Zoom Bar -->
+      <rect x="556" y="20" width="280" height="38" fill="#FBF9F5" stroke="#D6D3D1"/>
+      <rect x="615" y="25" width="54" height="28" fill="#1C1917"/>
+      <text x="628" y="44" font-family="sans-serif" font-size="12" font-weight="bold" fill="#FBF9F5">Atlas</text>
+      <text x="682" y="44" font-family="sans-serif" font-size="12" fill="#57534E">Satellite</text>
+      <text x="742" y="44" font-family="sans-serif" font-size="12" fill="#57534E">Hybrid</text>
+      <text x="790" y="44" font-family="sans-serif" font-size="12" fill="#57534E">Terrain</text>
+
+      <rect x="848" y="20" width="185" height="38" fill="#FBF9F5" stroke="#D6D3D1"/>
+      <text x="866" y="44" font-family="sans-serif" font-size="12" fill="#57534E">Zoom Level:</text>
+      <text x="945" y="44" font-family="monospace" font-size="12" font-weight="bold" fill="#1C1917">13.5</text>
+      <text x="992" y="44" font-family="monospace" font-size="14" font-weight="bold" fill="#57534E">-  +</text>
+
+      <!-- Custom AdvancedMarker Pin & Floating Coordinate Plate -->
+      <rect x="920" y="340" width="275" height="34" fill="#1C1917" stroke="#44403C"/>
+      <circle cx="936" cy="357" r="4" fill="#C2410C"/>
+      <text x="948" y="362" font-family="sans-serif" font-size="12" font-weight="bold" fill="#FBF9F5">Shibuya, Tokyo</text>
+      <text x="1065" y="362" font-family="monospace" font-size="11" fill="#A8A29E">35.6580, 139.7016</text>
+      <circle cx="1056" cy="400" r="16" fill="#9A3412" stroke="#FBF9F5" stroke-width="3"/>
+      <circle cx="1056" cy="400" r="5" fill="#FBF9F5"/>
+    </svg>
