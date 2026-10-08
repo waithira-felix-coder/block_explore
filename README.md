@@ -50,7 +50,7 @@ Geospatial APIs provide canonical, structured ground truth—exact latitude/long
 
 ---
 
-## 🎯 Product Concept
+##  Product Concept
 
 Most map applications are built for **logistics**—getting from Point A to Point B as quickly as possible. **Block Explorer** is built for **place literacy and curiosity**.
 
@@ -65,7 +65,7 @@ Explore a destination  ──►  Understand its local character  ──►  Tes
 
 ---
 
-## ✨ Features
+##  Features
 
 - **Destination Search & Geocoding V4 Integration**
   - Forward geocoding powered by the **Google Geocoding API V4** (`/v4/geocode/address/{addressQuery}`).
@@ -100,7 +100,7 @@ Explore a destination  ──►  Understand its local character  ──►  Tes
 
 ---
 
-## 🧠 How It Works
+##  How It Works
 
 Block Explorer uses a full-stack TypeScript architecture where an Express server serves both the Vite/React frontend and the backend AI/Maps configuration routes.
 
@@ -165,7 +165,7 @@ flowchart TB
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 ### Frontend
 - **React** (`react`, `react-dom`) — Component-based UI and state management
@@ -210,7 +210,7 @@ APP_URL=http://localhost:3000
 
 ---
 
-## 🚀 Local Development
+##  Local Development
 
 ### Prerequisites
 - **Node.js** (v18+ recommended; v20+ ideal)
