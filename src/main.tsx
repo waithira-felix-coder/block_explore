@@ -7,7 +7,7 @@ import './index.css';
   window.dispatchEvent(
     new CustomEvent('gmp-sdk-error', {
       detail:
-        'Google Maps JavaScript API authentication failure (gm_authFailure). Verify that VITE_GOOGLE_MAPS_API_KEY is configured and Maps JavaScript API is enabled.',
+        'Google Maps JavaScript API authentication failure (gm_authFailure). Verify that GOOGLE_MAPS_PLATFORM_KEY is configured and Maps JavaScript API is enabled.',
     })
   );
 };
@@ -24,7 +24,6 @@ console.error = (...args: unknown[]) => {
     msg.includes('RefererNotAllowedMapError') ||
     msg.includes('BillingNotEnabledMapError')
   ) {
-    console.warn('[Google Maps SDK Diagnostic]:', msg);
     window.dispatchEvent(new CustomEvent('gmp-sdk-error', { detail: msg }));
     return;
   }

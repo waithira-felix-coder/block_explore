@@ -22,6 +22,7 @@ import {
   GEOCODING_V4_BASE_URL,
   geocodeAddressV4,
   GeocodingRequestError,
+  resolveRuntimeMapsApiKey,
 } from './services/geocodingV4';
 import { fetchLocalInsights } from './services/localInsights';
 import {
@@ -29,9 +30,6 @@ import {
   GeocodeErrorState,
   PRESET_DESTINATIONS,
 } from './types/geocoding';
-
-const API_KEY: string =
-  (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined)?.trim() || '';
 
 const SAVED_LOCATIONS_STORAGE_KEY = 'block_explorer_saved_locations_v1';
 const MAX_CACHE_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 consecutive calendar days per GMP ToS
@@ -62,6 +60,8 @@ function loadSavedLocationsFromStorage(): StoredBookmark[] {
 }
 
 export default function App() {
+  const [mapsApiKey, setMapsApiKey] = useState<string>('');
+  const [isMapsConfigReady, setIsMapsConfigReady] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activePreset, setActivePreset] = useState<string>('Buenos Aires');
   const [selectedLocation, setSelectedLocation] = useState<ExploredLocation | null>(null);
@@ -133,12 +133,13 @@ export default function App() {
   }, []);
 
   const executeGeocode = useCallback(
-    async (locationQuery: string) => {
+    async (locationQuery: string, keyOverride?: string) => {
       setIsLoading(true);
       setErrorState(null);
+      const effectiveKey = (keyOverride ?? mapsApiKey).trim();
 
       try {
-        const resolved = await geocodeAddressV4(locationQuery, API_KEY);
+        const resolved = await geocodeAddressV4(locationQuery, effectiveKey);
         setSelectedLocation(resolved);
         setPanTrigger((prev) => prev + 1);
         setHistory((prev) => {
@@ -176,16 +177,27 @@ export default function App() {
         setIsLoading(false);
       }
     },
-    [loadLocalInsights]
+    [loadLocalInsights, mapsApiKey]
   );
 
-  // Automatically geocode the first preset ("Buenos Aires") on initial mount
+  // Sync runtime GOOGLE_MAPS_PLATFORM_KEY from server before mounting APIProvider and geocoding initial preset
   useEffect(() => {
-    executeGeocode('Buenos Aires');
+    let cancelled = false;
+    async function initMapsAndGeocode() {
+      const resolvedKey = await resolveRuntimeMapsApiKey();
+      if (!cancelled) {
+        setMapsApiKey(resolvedKey);
+        setIsMapsConfigReady(true);
+        executeGeocode('Buenos Aires', resolvedKey);
+      }
+    }
+    initMapsAndGeocode();
     return () => {
+      cancelled = true;
       insightsAbortControllerRef.current?.abort();
     };
-  }, [executeGeocode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -271,7 +283,7 @@ export default function App() {
         endpointUrl: GEOCODING_V4_BASE_URL,
         timestamp: new Date().toLocaleTimeString(),
         troubleshootingTips: [
-          'Ensure VITE_GOOGLE_MAPS_API_KEY is set to a valid Google Maps Platform API key.',
+          'Ensure GOOGLE_MAPS_PLATFORM_KEY is set to a valid Google Maps Platform API key or Demo Key in AI Studio Secrets.',
           'Enable both "Maps JavaScript API" and "Geocoding API" in your Google Cloud project.',
         ],
       };
@@ -279,8 +291,7 @@ export default function App() {
   }, []);
 
   return (
-    <APIProvider apiKey={API_KEY} libraries={['marker']}>
-      <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#FBF9F5] text-[#1C1917]">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#FBF9F5] text-[#1C1917]">
         {/* Left-Side 1/3-Width Editorial Control Panel */}
         <aside className="w-full lg:w-1/3 lg:h-screen lg:overflow-y-auto border-b lg:border-b-0 lg:border-r border-stone-300 bg-[#FBF9F5] flex flex-col justify-between">
           <div className="p-6 sm:p-8 lg:p-9 space-y-7">
@@ -782,31 +793,38 @@ export default function App() {
 
         {/* Right-Side 2/3-Width Full-Height Interactive Map */}
         <main className="w-full lg:w-2/3 h-[58vh] lg:h-screen relative">
-          <InteractiveMapCanvas
-            selectedLocation={selectedLocation}
-            panTrigger={panTrigger}
-            isGeocoding={isLoading}
-            hasApiKey={Boolean(API_KEY)}
-            onMapSdkError={handleMapSdkError}
-            onZoomChange={setCurrentZoom}
-            insightsCityAndState={
-              insightsCityAndState || selectedLocation?.cityAndState || ''
-            }
-            insightsHtml={insightsHtml}
-            isLoadingInsights={isLoadingInsights}
-            insightsError={insightsError}
-            onRetryInsights={() =>
-              loadLocalInsights(
-                insightsCityAndState ||
-                  selectedLocation?.cityAndState ||
-                  activePreset ||
-                  'Buenos Aires'
-              )
-            }
-            onDismissInsightsError={() => setInsightsError(null)}
-          />
+          {isMapsConfigReady ? (
+            <APIProvider apiKey={mapsApiKey} libraries={['marker']}>
+              <InteractiveMapCanvas
+                selectedLocation={selectedLocation}
+                panTrigger={panTrigger}
+                isGeocoding={isLoading}
+                hasApiKey={Boolean(mapsApiKey)}
+                onMapSdkError={handleMapSdkError}
+                onZoomChange={setCurrentZoom}
+                insightsCityAndState={
+                  insightsCityAndState || selectedLocation?.cityAndState || ''
+                }
+                insightsHtml={insightsHtml}
+                isLoadingInsights={isLoadingInsights}
+                insightsError={insightsError}
+                onRetryInsights={() =>
+                  loadLocalInsights(
+                    insightsCityAndState ||
+                      selectedLocation?.cityAndState ||
+                      activePreset ||
+                      'Buenos Aires'
+                  )
+                }
+                onDismissInsightsError={() => setInsightsError(null)}
+              />
+            </APIProvider>
+          ) : (
+            <div className="w-full h-full bg-[#EBE6DF] flex items-center justify-center text-xs text-stone-600">
+              Loading Google Maps configuration...
+            </div>
+          )}
         </main>
       </div>
-    </APIProvider>
   );
 }

@@ -17,6 +17,7 @@ import {
 import {
   AlertCircle,
   AlertTriangle,
+  ArrowUpRight,
   Award,
   BookOpen,
   CheckCircle2,
@@ -25,8 +26,10 @@ import {
   Compass,
   Crosshair,
   HelpCircle,
+  Info,
   Layers,
   Loader2,
+  MapPin,
   Minus,
   Navigation,
   Plus,
@@ -38,6 +41,7 @@ import {
 } from 'lucide-react';
 import {
   fetchLocalQuiz,
+  GroundingSourceLink,
   QUIZ_CATEGORIES,
   QuizCategory,
   QuizQuestion,
@@ -213,11 +217,15 @@ export default function InteractiveMapCanvas({
   const [sdkErrorBanner, setSdkErrorBanner] = useState<string | null>(null);
   const [isInsightsCollapsed, setIsInsightsCollapsed] = useState(false);
 
-  // Local Knowledge Quiz State
+  // Local Knowledge Quiz & Hyperlocal Mode State
   const [showQuizCategories, setShowQuizCategories] = useState(false);
+  const [hyperlocalMode, setHyperlocalMode] = useState(false);
   const [selectedQuizCategory, setSelectedQuizCategory] =
     useState<QuizCategory | null>(null);
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+  const [quizGroundingSources, setQuizGroundingSources] = useState<
+    GroundingSourceLink[]
+  >([]);
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
   const [quizError, setQuizError] = useState<string | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>(
@@ -231,7 +239,7 @@ export default function InteractiveMapCanvas({
       const customEvent = event as CustomEvent<string>;
       const rawDetail = customEvent.detail || 'Google Maps SDK configuration error.';
       const cleanMessage = rawDetail.includes('ApiProjectMapError')
-        ? 'ApiProjectMapError: Check that a valid VITE_GOOGLE_MAPS_API_KEY is configured and the Maps JavaScript API is enabled for your Cloud project.'
+        ? 'ApiProjectMapError: Check that a valid GOOGLE_MAPS_PLATFORM_KEY is configured and the Maps JavaScript API is enabled for your project.'
         : rawDetail;
       setSdkErrorBanner(cleanMessage);
       onMapSdkError?.(cleanMessage);
@@ -248,7 +256,7 @@ export default function InteractiveMapCanvas({
     ) {
       const msg =
         apiStatus === APILoadingStatus.AUTH_FAILURE
-          ? 'Maps JavaScript API authentication failed. Please verify your VITE_GOOGLE_MAPS_API_KEY and ensure Maps JavaScript API is enabled.'
+          ? 'Maps JavaScript API authentication failed. Please verify your GOOGLE_MAPS_PLATFORM_KEY and ensure Maps JavaScript API is enabled.'
           : 'Maps JavaScript API failed to load. Please check your network connection and API key configuration.';
       setSdkErrorBanner(msg);
       onMapSdkError?.(msg);
@@ -267,6 +275,7 @@ export default function InteractiveMapCanvas({
     setShowQuizCategories(false);
     setSelectedQuizCategory(null);
     setQuizQuestions([]);
+    setQuizGroundingSources([]);
     setIsLoadingQuiz(false);
     setQuizError(null);
     setSelectedAnswers({});
@@ -279,8 +288,8 @@ export default function InteractiveMapCanvas({
     };
   }, []);
 
-  const handleSelectQuizCategory = useCallback(
-    async (category: QuizCategory) => {
+  const loadQuizForCategory = useCallback(
+    async (category: QuizCategory, useHyperlocal: boolean) => {
       const place =
         insightsCityAndState ||
         selectedLocation?.cityAndState ||
@@ -296,6 +305,7 @@ export default function InteractiveMapCanvas({
       setIsLoadingQuiz(true);
       setQuizError(null);
       setQuizQuestions([]);
+      setQuizGroundingSources([]);
       setSelectedAnswers({});
       setIsQuizSubmitted(false);
 
@@ -303,14 +313,17 @@ export default function InteractiveMapCanvas({
         const plainInsightsContext = insightsHtml
           ? insightsHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
           : '';
-        const response = await fetchLocalQuiz(
-          place,
+        const response = await fetchLocalQuiz({
+          cityAndState: place,
           category,
-          plainInsightsContext,
-          controller.signal
-        );
+          insightsContext: plainInsightsContext,
+          hyperlocalMode: useHyperlocal,
+          coordinates: selectedLocation?.coordinates || null,
+          signal: controller.signal,
+        });
         if (!controller.signal.aborted) {
           setQuizQuestions(response.questions);
+          setQuizGroundingSources(response.groundingSources || []);
         }
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') {
@@ -331,6 +344,21 @@ export default function InteractiveMapCanvas({
     },
     [insightsCityAndState, insightsHtml, selectedLocation]
   );
+
+  const handleSelectQuizCategory = useCallback(
+    (category: QuizCategory) => {
+      loadQuizForCategory(category, hyperlocalMode);
+    },
+    [hyperlocalMode, loadQuizForCategory]
+  );
+
+  const handleToggleHyperlocalMode = () => {
+    const nextValue = !hyperlocalMode;
+    setHyperlocalMode(nextValue);
+    if (selectedQuizCategory) {
+      loadQuizForCategory(selectedQuizCategory, nextValue);
+    }
+  };
 
   const handleSelectAnswer = (questionId: string, option: string) => {
     if (isQuizSubmitted) return;
@@ -528,7 +556,7 @@ export default function InteractiveMapCanvas({
                 {sdkErrorBanner
                   ? sdkErrorBanner
                   : !hasApiKey
-                    ? 'Configure VITE_GOOGLE_MAPS_API_KEY in the AI Studio Secrets panel to authenticate interactive map tiles and Geocoding V4 requests.'
+                    ? 'Configure GOOGLE_MAPS_PLATFORM_KEY in the AI Studio Secrets panel to authenticate interactive map tiles and Geocoding V4 requests.'
                     : 'The Maps JavaScript API reported an authentication or loading issue. Check the troubleshooting panel on the left for full details.'}
               </p>
             </div>
@@ -673,37 +701,103 @@ export default function InteractiveMapCanvas({
                       dangerouslySetInnerHTML={{ __html: insightsHtml }}
                     />
 
-                    {/* Local Knowledge Game Trigger & Interactive Quiz Section */}
+                    {/* Local Knowledge Game Trigger, Hyperlocal Mode Toggle & Interactive Quiz Section */}
                     <div className="pt-3 border-t border-stone-200/90 space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        {!showQuizCategories ? (
-                          <button
-                            type="button"
-                            onClick={() => setShowQuizCategories(true)}
-                            className="px-3.5 py-2 bg-[#1C1917] hover:bg-[#292524] text-[#FBF9F5] text-xs font-semibold tracking-wide uppercase flex items-center gap-2 transition-colors cursor-pointer"
+                        <div className="flex flex-wrap items-center gap-3">
+                          {!showQuizCategories ? (
+                            <button
+                              type="button"
+                              onClick={() => setShowQuizCategories(true)}
+                              className="px-3.5 py-2 bg-[#1C1917] hover:bg-[#292524] text-[#FBF9F5] text-xs font-semibold tracking-wide uppercase flex items-center gap-2 transition-colors cursor-pointer"
+                            >
+                              <HelpCircle
+                                className="w-3.5 h-3.5 text-[#C2410C]"
+                                aria-hidden="true"
+                              />
+                              <span>Test their local knowledge</span>
+                            </button>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <HelpCircle
+                                className="w-4 h-4 text-[#9A3412]"
+                                aria-hidden="true"
+                              />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-stone-900">
+                                Local Knowledge Quiz · {insightsCityAndState}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Hyperlocal mode toggle */}
+                          <label
+                            htmlFor="hyperlocal-mode-toggle"
+                            className={`px-3 py-1.5 border text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer select-none ${
+                              hyperlocalMode
+                                ? 'bg-[#9A3412] text-[#FBF9F5] border-[#9A3412]'
+                                : 'bg-[#F7F4EE] hover:bg-[#EBE6DF] text-stone-800 border-stone-300'
+                            }`}
                           >
-                            <HelpCircle
-                              className="w-3.5 h-3.5 text-[#C2410C]"
-                              aria-hidden="true"
+                            <input
+                              id="hyperlocal-mode-toggle"
+                              type="checkbox"
+                              role="switch"
+                              aria-checked={hyperlocalMode}
+                              checked={hyperlocalMode}
+                              onChange={handleToggleHyperlocalMode}
+                              className="accent-[#1C1917] w-3.5 h-3.5 cursor-pointer"
                             />
-                            <span>Test their local knowledge</span>
-                          </button>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <HelpCircle
-                              className="w-4 h-4 text-[#9A3412]"
-                              aria-hidden="true"
-                            />
-                            <span className="text-xs font-semibold uppercase tracking-wider text-stone-900">
-                              Local Knowledge Quiz · {insightsCityAndState}
+                            <span className="font-semibold">Hyperlocal mode</span>
+                            <span
+                              className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 font-mono-tabular ${
+                                hyperlocalMode
+                                  ? 'bg-[#1C1917] text-[#FBF9F5]'
+                                  : 'bg-stone-200 text-stone-700'
+                              }`}
+                            >
+                              {hyperlocalMode ? 'Hard · Grounded' : 'Standard'}
                             </span>
-                          </div>
-                        )}
+                          </label>
+                        </div>
 
                         <div className="flex items-center gap-3 text-[11px] text-stone-500 ml-auto">
                           <span>Google Maps</span>
                           <span>·</span>
                           <span className="font-mono-tabular">gemini-3.8-flash</span>
+                        </div>
+                      </div>
+
+                      {/* Explainer Box: Why Hyperlocal Mode is more difficult & how it works */}
+                      <div
+                        aria-label="About Hyperlocal Mode"
+                        className={`p-3 border text-xs leading-relaxed flex items-start gap-2.5 ${
+                          hyperlocalMode
+                            ? 'bg-[#9A3412]/10 border-[#9A3412]/40 text-stone-900'
+                            : 'bg-[#F7F4EE]/80 border-stone-200 text-stone-600'
+                        }`}
+                      >
+                        <Info
+                          className="w-4 h-4 text-[#9A3412] shrink-0 mt-0.5"
+                          aria-hidden="true"
+                        />
+                        <div className="space-y-1">
+                          <div className="font-semibold text-stone-900">
+                            How Hyperlocal Mode Works (Increased Quiz Difficulty)
+                          </div>
+                          <p>
+                            Enabling <strong>Hyperlocal mode</strong> makes the quiz
+                            significantly more difficult by shifting from general city
+                            trivia to granular neighborhood-level challenges. When
+                            active, the Gemini API connects to the{' '}
+                            <strong>Google Maps Grounding Lite</strong> service (
+                            <span className="font-mono-tabular text-[11px]">
+                              search_places
+                            </span>{' '}
+                            &amp; Maps Grounding) around the active coordinates to
+                            fetch real-time local place details, exact street addresses,
+                            founding histories, and venue specialties before crafting
+                            the 3 questions.
+                          </p>
                         </div>
                       </div>
 
@@ -713,7 +807,15 @@ export default function InteractiveMapCanvas({
                           <div className="space-y-2">
                             <div className="flex items-center justify-between gap-2">
                               <p className="text-xs font-medium text-stone-700">
-                                Select a category to generate a 3-question quiz about{' '}
+                                Select a category to generate a{' '}
+                                {hyperlocalMode ? (
+                                  <strong className="text-[#9A3412] font-semibold">
+                                    Hyperlocal (Hard)
+                                  </strong>
+                                ) : (
+                                  '3-question'
+                                )}{' '}
+                                quiz about{' '}
                                 <strong className="font-semibold text-stone-900">
                                   {insightsCityAndState}
                                 </strong>
@@ -726,6 +828,7 @@ export default function InteractiveMapCanvas({
                                   setShowQuizCategories(false);
                                   setSelectedQuizCategory(null);
                                   setQuizQuestions([]);
+                                  setQuizGroundingSources([]);
                                   setQuizError(null);
                                   setSelectedAnswers({});
                                   setIsQuizSubmitted(false);
@@ -781,11 +884,9 @@ export default function InteractiveMapCanvas({
                             >
                               <Loader2 className="w-4 h-4 text-[#9A3412] animate-spin shrink-0" />
                               <span>
-                                Generating 3-question{' '}
-                                <strong className="font-semibold text-stone-900">
-                                  {selectedQuizCategory}
-                                </strong>{' '}
-                                quiz for {insightsCityAndState}...
+                                {hyperlocalMode
+                                  ? `Fetching live place data via Google Maps Grounding Lite & generating Hyperlocal ${selectedQuizCategory} quiz for ${insightsCityAndState}...`
+                                  : `Generating 3-question ${selectedQuizCategory} quiz for ${insightsCityAndState}...`}
                               </span>
                             </div>
                           )}
@@ -843,7 +944,8 @@ export default function InteractiveMapCanvas({
                                         {Math.round(
                                           (quizScore / quizQuestions.length) * 100
                                         )}
-                                        %)
+                                        %
+                                        {hyperlocalMode ? ' · Hyperlocal Mode' : ''})
                                       </span>
                                     </div>
                                   </div>
@@ -965,6 +1067,34 @@ export default function InteractiveMapCanvas({
                                   );
                                 })}
                               </div>
+
+                              {/* Grounded Google Maps Sources Attribution (Hyperlocal Mode) */}
+                              {quizGroundingSources.length > 0 && (
+                                <div className="p-2.5 bg-white border border-stone-200 space-y-1.5">
+                                  <div className="text-[11px] uppercase tracking-wider text-stone-500 font-semibold flex items-center gap-1.5">
+                                    <MapPin className="w-3 h-3 text-[#9A3412]" />
+                                    <span>
+                                      Google Maps Grounding Sources (Google Maps)
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {quizGroundingSources.map((src, idx) => (
+                                      <a
+                                        key={`${src.uri}-${idx}`}
+                                        href={src.uri}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-2 py-1 bg-[#F7F4EE] hover:bg-[#EBE6DF] border border-stone-300 text-[11px] text-stone-800 flex items-center gap-1 transition-colors"
+                                      >
+                                        <span className="truncate max-w-[200px]">
+                                          {src.title}
+                                        </span>
+                                        <ArrowUpRight className="w-3 h-3 text-[#9A3412] shrink-0" />
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
 
                               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                                 {!isQuizSubmitted ? (

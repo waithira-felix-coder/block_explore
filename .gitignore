@@ -1,8 +1,23 @@
+# Dependencies
 node_modules/
+
+# Build outputs & caches
 build/
 dist/
+server.js
+.vite/
+.gmp_cache/
 coverage/
-.DS_Store
-*.log
+
+# Environment & secrets (keep only .env.example tracked)
+.env
+.env.*
 .env*
 !.env.example
+*.pem
+*.key
+
+# Logs & OS metadata
+*.log
+npm-debug.log*
+.DS_Store

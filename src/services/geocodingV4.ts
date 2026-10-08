@@ -15,6 +15,32 @@ import {
 
 export const GEOCODING_V4_BASE_URL = 'https://geocode.googleapis.com/v4/geocode/address/';
 
+let cachedRuntimeMapsKey = '';
+
+export async function resolveRuntimeMapsApiKey(providedKey?: string): Promise<string> {
+  const trimmedProvided = (providedKey || '').trim();
+  if (trimmedProvided) {
+    cachedRuntimeMapsKey = trimmedProvided;
+    return trimmedProvided;
+  }
+  if (cachedRuntimeMapsKey) {
+    return cachedRuntimeMapsKey;
+  }
+  try {
+    const res = await fetch('/api/maps-config');
+    if (res.ok) {
+      const data = (await res.json()) as { apiKey?: string };
+      if (data.apiKey && data.apiKey.trim()) {
+        cachedRuntimeMapsKey = data.apiKey.trim();
+        return cachedRuntimeMapsKey;
+      }
+    }
+  } catch {
+    // Ignore network error if /api/maps-config is unreachable
+  }
+  return '';
+}
+
 export class GeocodingRequestError extends Error {
   public readonly details: GeocodeErrorState;
 
@@ -132,7 +158,7 @@ function extractCityAndState(
  */
 export async function geocodeAddressV4(
   rawQuery: string,
-  apiKey: string
+  apiKey?: string
 ): Promise<ExploredLocation> {
   const trimmedQuery = rawQuery.trim();
   const displayEndpoint = `${GEOCODING_V4_BASE_URL}${encodeURIComponent(trimmedQuery)}`;
@@ -152,8 +178,10 @@ export async function geocodeAddressV4(
     });
   }
 
-  const requestUrl = apiKey
-    ? `${displayEndpoint}?key=${encodeURIComponent(apiKey)}`
+  const effectiveApiKey = await resolveRuntimeMapsApiKey(apiKey);
+
+  const requestUrl = effectiveApiKey
+    ? `${displayEndpoint}?key=${encodeURIComponent(effectiveApiKey)}`
     : displayEndpoint;
 
   const headers: Record<string, string> = {
@@ -162,8 +190,8 @@ export async function geocodeAddressV4(
     'X-Goog-Maps-Solution-ID': 'gmp_mcp_codeassist_v1_aistudio',
   };
 
-  if (apiKey) {
-    headers['X-Goog-Api-Key'] = apiKey;
+  if (effectiveApiKey) {
+    headers['X-Goog-Api-Key'] = effectiveApiKey;
   }
 
   const startTime = performance.now();
@@ -228,9 +256,9 @@ export async function geocodeAddressV4(
       `Geocoding V4 request failed with HTTP status ${response.status}.`;
 
     const tips: string[] = [];
-    if (!apiKey) {
+    if (!effectiveApiKey) {
       tips.push(
-        'No Google Maps API key was detected in VITE_GOOGLE_MAPS_API_KEY. Configure a valid key in your environment secrets.'
+        'No Google Maps API key was detected in GOOGLE_MAPS_PLATFORM_KEY. Configure a valid key in your environment secrets.'
       );
     }
     if (reason === 'API_KEY_INVALID' || code === 400 || code === 403 || status === 'PERMISSION_DENIED') {
@@ -254,7 +282,7 @@ export async function geocodeAddressV4(
     }
 
     throw new GeocodingRequestError({
-      title: !apiKey
+      title: !effectiveApiKey
         ? 'Missing Google Maps API Key'
         : `Geocoding V4 Error (${status})`,
       message: rawMessage,

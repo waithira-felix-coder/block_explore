@@ -24,9 +24,16 @@ export interface QuizQuestion {
   explanation: string;
 }
 
+export interface GroundingSourceLink {
+  title: string;
+  uri: string;
+}
+
 export interface LocalQuizResponse {
   cityAndState: string;
   category: QuizCategory;
+  hyperlocalMode: boolean;
+  groundingSources: GroundingSourceLink[];
   questions: QuizQuestion[];
 }
 
@@ -78,12 +85,23 @@ export async function fetchLocalInsights(
   };
 }
 
-export async function fetchLocalQuiz(
-  cityAndState: string,
-  category: QuizCategory,
-  insightsContext?: string,
-  signal?: AbortSignal
-): Promise<LocalQuizResponse> {
+export interface FetchLocalQuizOptions {
+  cityAndState: string;
+  category: QuizCategory;
+  insightsContext?: string;
+  hyperlocalMode?: boolean;
+  coordinates?: { lat: number; lng: number } | null;
+  signal?: AbortSignal;
+}
+
+export async function fetchLocalQuiz({
+  cityAndState,
+  category,
+  insightsContext,
+  hyperlocalMode = false,
+  coordinates = null,
+  signal,
+}: FetchLocalQuizOptions): Promise<LocalQuizResponse> {
   const trimmedPlace = cityAndState.trim();
   if (!trimmedPlace) {
     throw new Error('City and State are required to generate a local quiz.');
@@ -100,6 +118,8 @@ export async function fetchLocalQuiz(
         cityAndState: trimmedPlace,
         category,
         insightsContext: insightsContext || '',
+        hyperlocalMode,
+        coordinates,
       }),
       signal,
     });
@@ -115,6 +135,8 @@ export async function fetchLocalQuiz(
   let payload: {
     cityAndState?: string;
     category?: QuizCategory;
+    hyperlocalMode?: boolean;
+    groundingSources?: GroundingSourceLink[];
     questions?: QuizQuestion[];
     error?: string;
   };
@@ -134,6 +156,10 @@ export async function fetchLocalQuiz(
   return {
     cityAndState: payload.cityAndState || trimmedPlace,
     category: payload.category || category,
+    hyperlocalMode: Boolean(payload.hyperlocalMode ?? hyperlocalMode),
+    groundingSources: Array.isArray(payload.groundingSources)
+      ? payload.groundingSources
+      : [],
     questions: payload.questions,
   };
 }
