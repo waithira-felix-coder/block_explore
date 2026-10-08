@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: block-explorer
+    runtime: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npx tsx server.ts
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GOOGLE_MAPS_PLATFORM_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

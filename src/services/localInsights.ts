@@ -37,6 +37,8 @@ export interface LocalQuizResponse {
   questions: QuizQuestion[];
 }
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+
 export async function fetchLocalInsights(
   cityAndState: string,
   signal?: AbortSignal
@@ -48,7 +50,7 @@ export async function fetchLocalInsights(
 
   let response: Response;
   try {
-    response = await fetch('/api/local-insights', {
+    response = await fetch(`${API_BASE_URL}/api/local-insights`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -109,7 +111,7 @@ export async function fetchLocalQuiz({
 
   let response: Response;
   try {
-    response = await fetch('/api/local-quiz', {
+    response = await fetch(`${API_BASE_URL}/api/local-quiz`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

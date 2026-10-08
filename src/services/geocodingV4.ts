@@ -17,6 +17,8 @@ export const GEOCODING_V4_BASE_URL = 'https://geocode.googleapis.com/v4/geocode/
 
 let cachedRuntimeMapsKey = '';
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+
 export async function resolveRuntimeMapsApiKey(providedKey?: string): Promise<string> {
   const trimmedProvided = (providedKey || '').trim();
   if (trimmedProvided) {
@@ -27,7 +29,7 @@ export async function resolveRuntimeMapsApiKey(providedKey?: string): Promise<st
     return cachedRuntimeMapsKey;
   }
   try {
-    const res = await fetch('/api/maps-config');
+    const res = await fetch(`${API_BASE_URL}/api/maps-config`);
     if (res.ok) {
       const data = (await res.json()) as { apiKey?: string };
       if (data.apiKey && data.apiKey.trim()) {
@@ -36,8 +38,15 @@ export async function resolveRuntimeMapsApiKey(providedKey?: string): Promise<st
       }
     }
   } catch {
-    // Ignore network error if /api/maps-config is unreachable
+    // Ignore network error if /api/maps-config is unreachable on static hosting
   }
+
+  const staticBuildKey = (import.meta.env.VITE_GOOGLE_MAPS_PLATFORM_KEY || '').trim();
+  if (staticBuildKey) {
+    cachedRuntimeMapsKey = staticBuildKey;
+    return cachedRuntimeMapsKey;
+  }
+
   return '';
 }
 

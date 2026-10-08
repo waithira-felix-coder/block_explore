@@ -19,7 +19,7 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const MAPS_GROUNDING_LITE_MCP_URL = 'https://mapstools.googleapis.com/mcp';
 
 const TEXT_MODEL_CANDIDATES = [
@@ -297,6 +297,18 @@ async function fetchHyperlocalGroundedData(
 async function startServer() {
   const app = express();
   app.use(express.json());
+
+  // Allow cross-origin requests to /api/* when the static frontend is hosted on GitHub Pages
+  app.use('/api', (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(204);
+      return;
+    }
+    next();
+  });
 
   app.get('/api/maps-config', (_req, res) => {
     const info = getMapsPlatformKeyInfo();
