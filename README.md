@@ -183,7 +183,8 @@ flowchart TB
   - **Geocoding API V4** — Forward address geocoding (`https://geocode.googleapis.com/v4/geocode/address/`)
   - **Maps Grounding Lite (MCP)** — JSON-RPC `search_places` grounding tool (`https://mapstools.googleapis.com/mcp`)
 - **Dotenv** (`dotenv`) — Environment variable loading
-
+- 
+**Code Lab on Google:**  https://codelabs.developers.google.com/codelabs/cloud-run/build-with-google-maps-platform-and-ai
 ---
 
 ## 🔑 Environment Variables
